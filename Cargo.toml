@@ -1,6 +1,6 @@
 [package]
 name = "simulated_annealing"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Pavel Sobolev <paveloom@riseup.net>"]
 edition = "2021"
 rust-version = "1.63"
@@ -14,7 +14,7 @@ keywords = ["optimization", "simulated-annealing"]
 categories = ["mathematics"]
 
 [package.metadata.docs.rs]
-rustdoc-args = [ "--html-in-header", "katex-header.html" ]
+rustdoc-args = [ "--html-in-header", "assets/katex-header.html" ]
 
 [dependencies]
 anyhow = "1.0.64"
