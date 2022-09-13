@@ -13,6 +13,8 @@ rustflags = [
     "-Dunsafe_code",
     # Exceptions
     "-Aclippy::default_numeric_fallback",
+    "-Aclippy::exhaustive_enums",
+    "-Aclippy::exhaustive_structs",
     "-Aclippy::float_arithmetic",
     "-Aclippy::implicit_return",
     "-Aclippy::integer_arithmetic",

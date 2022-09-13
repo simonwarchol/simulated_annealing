@@ -6,7 +6,6 @@ use numeric_literals::replace_float_literals;
 use std::fmt::Debug;
 
 /// Annealing schedule
-#[non_exhaustive]
 pub enum Schedule<F: Float> {
     /// Logarithmic:
     ///

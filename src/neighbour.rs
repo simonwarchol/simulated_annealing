@@ -10,7 +10,6 @@ use std::fmt::Debug;
 use crate::{Bounds, Point};
 
 /// Method of getting a random neighbour
-#[non_exhaustive]
 pub enum Method<F, R, const N: usize>
 where
     F: Float,

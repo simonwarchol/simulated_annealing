@@ -11,7 +11,6 @@ use std::fmt::Debug;
 use crate::{Bounds, NeighbourMethod, Point, Schedule, Status, APF};
 
 /// Simulated annealing
-#[non_exhaustive]
 pub struct SA<'a, 'b, F, R, FN, const N: usize>
 where
     F: Float + SampleUniform + Debug,
@@ -105,9 +104,9 @@ fn test() -> Result<()> {
     #[allow(clippy::trivially_copy_pass_by_ref)]
     fn f(p: &Point<f64, 1>) -> f64 {
         let x = p[0];
-        f64::ln(x) * (f64::sin(x) + f64::cos(x))
+        x.ln() * (x.sin() + x.cos())
     }
-    // Get the minimum
+    // Get the minimum (and the corresponding point)
     let (m, p) = SA {
         f,
         p_0: &[2.],

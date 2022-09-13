@@ -11,10 +11,9 @@ use std::fmt::Debug;
 /// external variables and use them, too (for example, for storing results in an array).
 ///
 /// See the [`print`](Status#method.print) method for the signature explanation.
-pub type Custom<'a, F, const N: usize> = Box<dyn Fn(usize, F, F, [F; N], F, [F; N]) + 'a>;
+pub type Custom<'a, F, const N: usize> = Box<dyn FnMut(usize, F, F, [F; N], F, [F; N]) + 'a>;
 
 /// Status function
-#[non_exhaustive]
 pub enum Status<'a, F: Float + Debug, const N: usize> {
     /// Don't print status
     None,
@@ -52,7 +51,7 @@ impl<'a, F: Float + Debug, const N: usize> Status<'a, F, N> {
                     );
                 }
             }
-            Status::Custom { f: ref fun } => fun(k, t, f, p, best_f, best_p),
+            Status::Custom { f: ref mut fun } => fun(k, t, f, p, best_f, best_p),
         }
     }
 }

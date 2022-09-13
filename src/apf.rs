@@ -8,7 +8,6 @@ use rand_distr::{uniform::SampleUniform, Uniform};
 use std::fmt::Debug;
 
 /// Acceptance probability function
-#[non_exhaustive]
 pub enum APF<F, R>
 where
     F: Float + SampleUniform,

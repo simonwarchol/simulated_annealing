@@ -1,5 +1,5 @@
 [package]
-name = "annealing"
+name = "simulated_annealing"
 version = "0.1.0"
 authors = ["Pavel Sobolev <paveloom@riseup.net>"]
 edition = "2021"
