@@ -3,18 +3,21 @@ name = "annealing"
 version = "0.1.0"
 authors = ["Pavel Sobolev <paveloom@riseup.net>"]
 edition = "2021"
-rust-version = "1.59"
+rust-version = "1.63"
 description = "An interface for global function optimization using simulated annealing"
 documentation = "https://docs.rs/simulated_annealing"
 readme = "README.md"
 homepage = "https://github.com/paveloom-r/simulated_annealing"
 repository = "https://github.com/paveloom-r/simulated_annealing"
 license-file = "LICENSE.md"
-keywords = ["search", "optimization"]
+keywords = ["optimization", "simulated-annealing"]
 categories = ["mathematics"]
 
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
+
 [dependencies]
-anyhow = "=1.0.56"
+anyhow = "=1.0.64"
 itertools = "=0.10.3"
 num = "=0.4.0"
 numeric_literals = "=0.2.0"

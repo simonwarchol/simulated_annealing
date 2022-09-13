@@ -8,6 +8,7 @@ use rand_distr::{uniform::SampleUniform, Uniform};
 use std::fmt::Debug;
 
 /// Acceptance probability function
+#[non_exhaustive]
 pub enum APF<F, R>
 where
     F: Float + SampleUniform,
@@ -41,9 +42,10 @@ where
     /// * `t` --- Temperature;
     /// * `uni` -- Uniform[0, 1] distribution;
     /// * `rng` --- Random number generator.
+    #[allow(clippy::unwrap_used)]
     #[replace_float_literals(F::from(literal).unwrap())]
     pub fn accept(&self, diff: F, t: F, uni: &Uniform<F>, rng: &mut R) -> bool {
-        match self {
+        match *self {
             APF::Metropolis => diff <= 0. || uni.sample(rng) < F::min(F::exp(-diff / t), 1.),
             APF::Custom { f } => f(diff, t, uni, rng),
         }

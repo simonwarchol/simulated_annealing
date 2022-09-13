@@ -11,6 +11,7 @@ use std::fmt::Debug;
 use crate::{Bounds, NeighbourMethod, Point, Schedule, Status, APF};
 
 /// Simulated annealing
+#[non_exhaustive]
 pub struct SA<'a, 'b, F, R, FN, const N: usize>
 where
     F: Float + SampleUniform + Debug,
@@ -48,6 +49,7 @@ where
     FN: FnMut(&Point<F, N>) -> F,
 {
     /// Find the global minimum (and the corresponding point) of the objective function
+    #[allow(clippy::unwrap_used)]
     #[replace_float_literals(F::from(literal).unwrap())]
     pub fn findmin(&mut self) -> (F, Point<F, N>) {
         // Evaluate the objective function at the initial point and

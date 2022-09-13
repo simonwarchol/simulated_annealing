@@ -11,9 +11,10 @@ use std::fmt::Debug;
 /// external variables and use them, too (for example, for storing results in an array).
 ///
 /// See the [`print`](Status#method.print) method for the signature explanation.
-pub type Custom<'a, F, const N: usize> = Box<dyn FnMut(usize, F, F, [F; N], F, [F; N]) + 'a>;
+pub type Custom<'a, F, const N: usize> = Box<dyn Fn(usize, F, F, [F; N], F, [F; N]) + 'a>;
 
 /// Status function
+#[non_exhaustive]
 pub enum Status<'a, F: Float + Debug, const N: usize> {
     /// Don't print status
     None,
@@ -39,17 +40,19 @@ impl<'a, F: Float + Debug, const N: usize> Status<'a, F, N> {
     /// * `p` --- Current point;
     /// * `best_f` --- Current best solution;
     /// * `best_p` --- Current point of the best solution.
+    #[allow(clippy::print_stdout)]
+    #[allow(clippy::use_debug)]
     pub fn print(&mut self, k: usize, t: F, f: F, p: [F; N], best_f: F, best_p: [F; N]) {
-        match self {
+        match *self {
             Status::None => (),
             Status::Periodic { nk } => {
-                if k % *nk == 0 {
+                if k % nk == 0 {
                     println!(
                         "k: {k}\nt: {t:#?}:\ncurrent: {f:#?} at {p:#?}\nbest: {best_f:#?} at {best_p:#?}\n"
                     );
                 }
             }
-            Status::Custom { f: fun } => fun(k, t, f, p, best_f, best_p),
+            Status::Custom { f: ref fun } => fun(k, t, f, p, best_f, best_p),
         }
     }
 }

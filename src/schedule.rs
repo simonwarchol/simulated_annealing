@@ -6,6 +6,7 @@ use numeric_literals::replace_float_literals;
 use std::fmt::Debug;
 
 /// Annealing schedule
+#[non_exhaustive]
 pub enum Schedule<F: Float> {
     /// Logarithmic:
     ///
@@ -36,11 +37,12 @@ impl<F: Float + Debug> Schedule<F> {
     /// * `k` --- Index of the iteration;
     /// * `t` --- Temperature,
     /// * `t_0` --- Initial temperature.
+    #[allow(clippy::unwrap_used)]
     #[replace_float_literals(F::from(literal).unwrap())]
     pub fn cool(&self, k: usize, t: F, t_0: F) -> F {
-        match self {
+        match *self {
             Schedule::Logarithmic => t_0 * F::ln(2.) / F::ln(F::from(k + 1).unwrap()),
-            Schedule::Exponential { gamma } => *gamma * t,
+            Schedule::Exponential { gamma } => gamma * t,
             Schedule::Fast => t_0 / F::from(k).unwrap(),
             Schedule::Custom { f } => f(k, t, t_0),
         }

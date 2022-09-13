@@ -10,6 +10,7 @@ use std::fmt::Debug;
 use crate::{Bounds, Point};
 
 /// Method of getting a random neighbour
+#[non_exhaustive]
 pub enum Method<F, R, const N: usize>
 where
     F: Float,
@@ -43,22 +44,23 @@ where
     /// * `bounds` --- Bounds of the parameter space;
     /// * `distribution` --- Distribution to sample from;
     /// * `rng` --- Random number generator.
+    #[allow(clippy::unwrap_used)]
     pub fn neighbour(&self, p: &Point<F, N>, bounds: &Bounds<F, N>, rng: &mut R) -> Point<F, N> {
-        match self {
+        match *self {
             Method::Normal { sd } => {
                 let mut new_p = [F::zero(); N];
                 // Generate a new point
-                izip!(&mut new_p, p, bounds).for_each(|(np, &p, r)| {
+                izip!(&mut new_p, p, bounds).for_each(|(new_c, &c, r)| {
                     // Create a normal distribution around the current coordinate
-                    let d = Normal::new(p, *sd).unwrap();
+                    let d = Normal::new(c, sd).unwrap();
                     // Sample from this distribution
-                    let mut p = d.sample(rng);
+                    let mut s = d.sample(rng);
                     // If the result is not in the range, repeat until it is
-                    while !r.contains(&p) {
-                        p = d.sample(rng);
+                    while !r.contains(&s) {
+                        s = d.sample(rng);
                     }
                     // Save the new coordinate
-                    *np = F::from(p).unwrap();
+                    *new_c = F::from(s).unwrap();
                 });
                 new_p
             }

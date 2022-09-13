@@ -1,0 +1,23 @@
+[target.'cfg(all())']
+rustflags = [
+    "-Dclippy::cargo",
+    "-Dclippy::complexity",
+    "-Dclippy::correctness",
+    "-Dclippy::pedantic",
+    "-Dclippy::perf",
+    "-Dclippy::restriction",
+    "-Dclippy::style",
+    "-Dclippy::suspicious",
+    "-Dfuture_incompatible",
+    "-Dnonstandard-style",
+    "-Dunsafe_code",
+    # Exceptions
+    "-Aclippy::default_numeric_fallback",
+    "-Aclippy::float_arithmetic",
+    "-Aclippy::implicit_return",
+    "-Aclippy::integer_arithmetic",
+    "-Aclippy::missing_inline_in_public_items",
+    "-Aclippy::pub_use",
+    "-Aclippy::separated_literal_suffix",
+    "-Aclippy::single_char_lifetime_names",
+]
