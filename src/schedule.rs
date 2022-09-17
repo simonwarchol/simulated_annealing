@@ -1,9 +1,11 @@
 //! Provides the [`Schedule`](crate::Schedule) enum
 
+use anyhow::Result;
 use num::Float;
-use numeric_literals::replace_float_literals;
 
 use std::fmt::Debug;
+
+use crate::utils::cast;
 
 /// Annealing schedule
 pub enum Schedule<F: Float> {
@@ -25,24 +27,31 @@ pub enum Schedule<F: Float> {
     /// Custom: choose your own!
     Custom {
         /// Custom function
-        f: fn(k: usize, t: F, t_0: F) -> F,
+        f: fn(k: usize, t: F, t_0: F) -> Result<F>,
     },
 }
 
 impl<F: Float + Debug> Schedule<F> {
     /// Lower the temperature
     ///
-    /// Arguments:
+    /// # Arguments
     /// * `k` --- Index of the iteration;
     /// * `t` --- Temperature,
     /// * `t_0` --- Initial temperature.
+    ///
+    /// # Errors
+    ///
+    /// Will return `Err` if
+    /// * Logarithmic, Fast: couldn't cast a number to a generic floating-point number
+    /// * Custom function returned `Err`
+    #[allow(clippy::missing_panics_doc)]
+    #[allow(clippy::unwrap_in_result)]
     #[allow(clippy::unwrap_used)]
-    #[replace_float_literals(F::from(literal).unwrap())]
-    pub fn cool(&self, k: usize, t: F, t_0: F) -> F {
+    pub fn cool(&self, k: usize, t: F, t_0: F) -> Result<F> {
         match *self {
-            Schedule::Logarithmic => t_0 * F::ln(2.) / F::ln(F::from(k + 1).unwrap()),
-            Schedule::Exponential { gamma } => gamma * t,
-            Schedule::Fast => t_0 / F::from(k).unwrap(),
+            Schedule::Logarithmic => Ok(t_0 * F::ln(F::from(2.).unwrap()) / F::ln(cast(k + 1)?)),
+            Schedule::Exponential { gamma } => Ok(gamma * t),
+            Schedule::Fast => Ok(t_0 / cast(k)?),
             Schedule::Custom { f } => f(k, t, t_0),
         }
     }

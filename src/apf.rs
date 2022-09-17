@@ -1,7 +1,6 @@
 //! Provides the [`APF`](crate::APF) enum
 
 use num::Float;
-use numeric_literals::replace_float_literals;
 use rand::prelude::*;
 use rand_distr::{uniform::SampleUniform, Uniform};
 
@@ -36,16 +35,16 @@ where
 {
     /// Choose whether to accept the point
     ///
-    /// Arguments:
+    /// # Arguments
     /// * `diff` --- Difference in the objective;
     /// * `t` --- Temperature;
     /// * `uni` -- Uniform[0, 1] distribution;
     /// * `rng` --- Random number generator.
-    #[allow(clippy::unwrap_used)]
-    #[replace_float_literals(F::from(literal).unwrap())]
     pub fn accept(&self, diff: F, t: F, uni: &Uniform<F>, rng: &mut R) -> bool {
         match *self {
-            APF::Metropolis => diff <= 0. || uni.sample(rng) < F::min(F::exp(-diff / t), 1.),
+            APF::Metropolis => {
+                diff <= F::zero() || uni.sample(rng) < F::min(F::exp(-diff / t), F::one())
+            }
             APF::Custom { f } => f(diff, t, uni, rng),
         }
     }

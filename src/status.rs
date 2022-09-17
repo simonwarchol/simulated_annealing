@@ -32,7 +32,7 @@ pub enum Status<'a, F: Float + Debug, const N: usize> {
 impl<'a, F: Float + Debug, const N: usize> Status<'a, F, N> {
     /// Print the status
     ///
-    /// Arguments:
+    /// # Arguments
     /// * `k` --- Current iteration;
     /// * `t` --- Current temperature;
     /// * `f` --- Current solution;

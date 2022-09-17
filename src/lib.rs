@@ -15,13 +15,14 @@
 //! Example:
 //!
 //! ```rust
+//! use anyhow::{Context, Result};
 //! use rand_xoshiro::rand_core::SeedableRng;
 //! use simulated_annealing::{Bounds, NeighbourMethod, Point, Schedule, Status, APF, SA};
 //!
 //! // Define the objective function
-//! fn f(p: &Point<f64, 1>) -> f64 {
+//! fn f(p: &Point<f64, 1>) -> Result<f64> {
 //!     let x = p[0];
-//!     x.ln() * (x.sin() + x.cos())
+//!     Ok(x.ln() * (x.sin() + x.cos()))
 //! }
 //! // Get the minimum (and the corresponding point)
 //! let (m, p) = SA {
@@ -46,19 +47,16 @@
 //!     // Random number generator
 //!     rng: &mut rand_xoshiro::Xoshiro256PlusPlus::seed_from_u64(1),
 //! }
-//! .findmin();
+//! .findmin().with_context(|| "Couldn't find the global minimum")?;
+//! # Ok::<(), anyhow::Error>(())
 //! ```
 
-#[doc(hidden)]
 mod apf;
-#[doc(hidden)]
 mod neighbour;
-#[doc(hidden)]
 mod sa;
-#[doc(hidden)]
 mod schedule;
-#[doc(hidden)]
 mod status;
+mod utils;
 
 use std::ops::Range;
 
