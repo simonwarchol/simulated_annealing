@@ -2,13 +2,11 @@
 
 use num::Float;
 
-use std::fmt::Debug;
+use core::fmt::Debug;
 
 /// Custom status function
 ///
-/// It's a [`Box`]'ed [`FnMut`] trait (see why [here](https://stackoverflow.com/a/59035722)),
-/// which allows you not only to access values of the signature variables, but also to bring
-/// external variables and use them, too (for example, for storing results in an array).
+/// See why it's a `Box` [here](https://stackoverflow.com/a/59035722).
 ///
 /// See the [`print`](Status#method.print) method for the signature explanation.
 pub type Custom<'a, F, const N: usize> = Box<dyn FnMut(usize, F, F, [F; N], F, [F; N]) + 'a>;
@@ -39,6 +37,7 @@ impl<'a, F: Float + Debug, const N: usize> Status<'a, F, N> {
     /// * `p` --- Current point;
     /// * `best_f` --- Current best solution;
     /// * `best_p` --- Current point of the best solution.
+    #[allow(clippy::arithmetic_side_effects)]
     #[allow(clippy::print_stdout)]
     #[allow(clippy::use_debug)]
     pub fn print(&mut self, k: usize, t: F, f: F, p: [F; N], best_f: F, best_p: [F; N]) {

@@ -4,10 +4,17 @@ use num::Float;
 use rand::prelude::*;
 use rand_distr::{uniform::SampleUniform, Uniform};
 
-use std::fmt::Debug;
+use core::fmt::Debug;
+
+/// Custom acceptance probability function
+///
+/// See why it's a `Box` [here](https://stackoverflow.com/a/59035722).
+///
+/// See the [`print`](Status#method.print) method for the signature explanation.
+pub type Custom<'a, F, R> = Box<dyn Fn(F, F, &Uniform<F>, &mut R) -> bool + 'a>;
 
 /// Acceptance probability function
-pub enum APF<F, R>
+pub enum APF<'a, F, R>
 where
     F: Float + SampleUniform,
     R: Rng,
@@ -24,11 +31,11 @@ where
     /// Custom: choose your own!
     Custom {
         /// Custom function
-        f: fn(diff: F, t: F, uni: &Uniform<F>, rng: &mut R) -> bool,
+        f: Custom<'a, F, R>,
     },
 }
 
-impl<F, R> APF<F, R>
+impl<'a, F, R> APF<'a, F, R>
 where
     F: Float + SampleUniform + Debug,
     R: Rng,
@@ -40,12 +47,13 @@ where
     /// * `t` --- Temperature;
     /// * `uni` -- Uniform[0, 1] distribution;
     /// * `rng` --- Random number generator.
+    #[allow(clippy::arithmetic_side_effects)]
     pub fn accept(&self, diff: F, t: F, uni: &Uniform<F>, rng: &mut R) -> bool {
         match *self {
             APF::Metropolis => {
                 diff <= F::zero() || uni.sample(rng) < F::min(F::exp(-diff / t), F::one())
             }
-            APF::Custom { f } => f(diff, t, uni, rng),
+            APF::Custom { ref f } => f(diff, t, uni, rng),
         }
     }
 }

@@ -1,9 +1,9 @@
 [package]
 name = "simulated_annealing"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Pavel Sobolev <paveloom@riseup.net>"]
 edition = "2021"
-rust-version = "1.63"
+rust-version = "1.67.1"
 description = "An interface for global function optimization using simulated annealing"
 documentation = "https://docs.rs/simulated_annealing"
 readme = "README.md"
@@ -17,8 +17,8 @@ categories = ["mathematics"]
 rustdoc-args = [ "--html-in-header", "assets/katex-header.html" ]
 
 [dependencies]
-anyhow = "1.0.64"
-itertools = "0.10.3"
+anyhow = "1.0.70"
+itertools = "0.10.5"
 num = "0.4.0"
 rand = "0.8.5"
 rand_distr = "0.4.3"

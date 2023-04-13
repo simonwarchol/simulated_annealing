@@ -12,6 +12,7 @@ rustflags = [
     "-Dnonstandard-style",
     "-Dunsafe_code",
     # Exceptions
+    "-Aclippy::blanket_clippy_restriction_lints",
     "-Aclippy::default_numeric_fallback",
     "-Aclippy::exhaustive_enums",
     "-Aclippy::exhaustive_structs",

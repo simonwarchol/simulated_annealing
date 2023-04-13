@@ -6,14 +6,22 @@ use num::Float;
 use rand::prelude::*;
 use rand_distr::{Normal, StandardNormal};
 
-use std::fmt::Debug;
+use core::fmt::Debug;
 
 use crate::{utils, Bounds, Point};
 
+/// Custom method of getting a random neighbour
+///
+/// See why it's a `Box` [here](https://stackoverflow.com/a/59035722).
+///
+/// See the [`neighbour`](Method#method.neighbour) method for the signature explanation.
+pub type Custom<'a, F, R, const N: usize> =
+    Box<dyn Fn(&Point<F, N>, &Bounds<F, N>, &mut R) -> Result<Point<F, N>> + 'a>;
+
 /// Method of getting a random neighbour
-pub enum Method<F, R, const N: usize>
+pub enum Method<'a, F, R, const N: usize>
 where
-    F: Float,
+    F: Float + Debug,
     StandardNormal: Distribution<F>,
     R: Rng,
 {
@@ -28,11 +36,11 @@ where
     #[allow(clippy::complexity)]
     Custom {
         /// Custom function
-        f: fn(p: &Point<F, N>, bounds: &Bounds<F, N>, rng: &mut R) -> Result<Point<F, N>>,
+        f: Custom<'a, F, R, N>,
     },
 }
 
-impl<F, R, const N: usize> Method<F, R, N>
+impl<'a, F, R, const N: usize> Method<'a, F, R, N>
 where
     F: Float + Debug,
     StandardNormal: Distribution<F>,
@@ -79,7 +87,7 @@ where
                     .with_context(|| "Couldn't generate a new point")?;
                 Ok(new_p)
             }
-            Method::Custom { f } => f(p, bounds, rng),
+            Method::Custom { ref f } => f(p, bounds, rng),
         }
     }
 }

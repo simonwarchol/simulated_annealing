@@ -6,12 +6,12 @@ use num::Float;
 use rand::prelude::*;
 use rand_distr::{uniform::SampleUniform, Distribution, StandardNormal, Uniform};
 
-use std::fmt::Debug;
+use core::fmt::Debug;
 
 use crate::{Bounds, NeighbourMethod, Point, Schedule, Status, APF};
 
 /// Simulated annealing
-pub struct SA<'a, 'b, F, R, FN, const N: usize>
+pub struct SA<'a, 'apf, 'neighbour, 'schedule, 'status, F, R, FN, const N: usize>
 where
     F: Float + SampleUniform + Debug,
     StandardNormal: Distribution<F>,
@@ -29,18 +29,18 @@ where
     /// Bounds of the parameter space
     pub bounds: &'a Bounds<F, N>,
     /// Acceptance probability function
-    pub apf: &'a APF<F, R>,
+    pub apf: &'a APF<'apf, F, R>,
     /// Method of getting a random neighbour
-    pub neighbour: &'a NeighbourMethod<F, R, N>,
+    pub neighbour: &'a NeighbourMethod<'neighbour, F, R, N>,
     /// Annealing schedule
-    pub schedule: &'a Schedule<F>,
+    pub schedule: &'a Schedule<'schedule, F>,
     /// Status function
-    pub status: &'a mut Status<'b, F, N>,
+    pub status: &'a mut Status<'status, F, N>,
     /// Random number generator
     pub rng: &'a mut R,
 }
 
-impl<F, R, FN, const N: usize> SA<'_, '_, F, R, FN, N>
+impl<F, R, FN, const N: usize> SA<'_, '_, '_, '_, '_, F, R, FN, N>
 where
     F: Float + SampleUniform + Debug,
     StandardNormal: Distribution<F>,
@@ -55,6 +55,7 @@ where
     /// * Couldn't evaluate the objective function
     /// * Couldn't get a neighbour
     /// * Couldn't lower the temperature
+    #[allow(clippy::arithmetic_side_effects)]
     pub fn findmin(&mut self) -> Result<(F, Point<F, N>)> {
         // Evaluate the objective function at the initial point and
         // save the initial values as the current working solution

@@ -58,7 +58,7 @@ mod schedule;
 mod status;
 mod utils;
 
-use std::ops::Range;
+use core::ops::Range;
 
 pub use apf::APF;
 pub use neighbour::Method as NeighbourMethod;
