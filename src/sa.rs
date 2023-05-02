@@ -1,22 +1,26 @@
 //! Provides the [`SA`](crate::SA) struct and the
 //! [`minimum`](crate::SA#method.minimum) method
 
+use core::fmt::Debug;
+use std::future::Future;
+use std::pin::Pin;
+
 use anyhow::{Context, Result};
+#[cfg(test)]
+use anyhow::bail;
 use num::Float;
 use rand::prelude::*;
-use rand_distr::{uniform::SampleUniform, Distribution, StandardNormal, Uniform};
+use rand_distr::{Distribution, StandardNormal, Uniform, uniform::SampleUniform};
 
-use core::fmt::Debug;
-
-use crate::{Bounds, NeighbourMethod, Point, Schedule, Status, APF};
+use crate::{APF, Bounds, NeighbourMethod, Point, Schedule, Status};
 
 /// Simulated annealing
 pub struct SA<'a, 'apf, 'neighbour, 'schedule, 'status, F, R, FN, const N: usize>
-where
-    F: Float + SampleUniform + Debug,
-    StandardNormal: Distribution<F>,
-    R: Rng,
-    FN: FnMut(&Point<F, N>) -> Result<F>,
+    where
+        F: Float + SampleUniform + Debug,
+        StandardNormal: Distribution<F>,
+        R: Rng,
+        FN: FnMut(&Point<F, N>) -> Pin<Box<dyn Future<Output=Result<F>> + Send>>,
 {
     /// Objective function
     pub f: FN,
@@ -41,11 +45,11 @@ where
 }
 
 impl<F, R, FN, const N: usize> SA<'_, '_, '_, '_, '_, F, R, FN, N>
-where
-    F: Float + SampleUniform + Debug,
-    StandardNormal: Distribution<F>,
-    R: Rng + SeedableRng,
-    FN: FnMut(&Point<F, N>) -> Result<F>,
+    where
+        F: Float + SampleUniform + Debug,
+        StandardNormal: Distribution<F>,
+        R: Rng + SeedableRng,
+        FN: FnMut(&Point<F, N>) -> Pin<Box<dyn Future<Output=Result<F>> + Send>>,
 {
     /// Find the global minimum (and the corresponding point) of the objective function
     ///
@@ -56,12 +60,12 @@ where
     /// * Couldn't get a neighbour
     /// * Couldn't lower the temperature
     #[allow(clippy::arithmetic_side_effects)]
-    pub fn findmin(&mut self) -> Result<(F, Point<F, N>)> {
+    pub async fn findmin(&mut self) -> Result<(F, Point<F, N>)> {
         // Evaluate the objective function at the initial point and
         // save the initial values as the current working solution
         let mut p = *self.p_0;
         let mut f =
-            (self.f)(self.p_0).with_context(|| "Couldn't evaluate the objective function")?;
+            (self.f)(self.p_0).await.with_context(|| "Couldn't evaluate the objective function")?;
         // Save the current working solution as the current best
         let mut best_p = p;
         let mut best_f = f;
@@ -79,7 +83,7 @@ where
                 .neighbour(&p, self.bounds, self.rng)
                 .with_context(|| "Couldn't get a neighbor")?;
             // Evaluate the objective function
-            let neighbour_f = (self.f)(&neighbour_p)
+            let neighbour_f = (self.f)(&neighbour_p).await
                 .with_context(|| "Couldn't evaluate the objective function")?;
             // Compute the difference between the new and the current solutions
             let diff = neighbour_f - f;
@@ -109,9 +113,6 @@ where
     }
 }
 
-#[cfg(test)]
-use anyhow::bail;
-
 #[test]
 fn test() -> Result<()> {
     // Define the objective function
@@ -134,8 +135,8 @@ fn test() -> Result<()> {
         status: &mut Status::Periodic { nk: 1000 },
         rng: &mut rand_xoshiro::Xoshiro256PlusPlus::seed_from_u64(1),
     }
-    .findmin()
-    .with_context(|| "Couldn't find the global minimum")?;
+        .findmin()
+        .with_context(|| "Couldn't find the global minimum")?;
     // Compare the result with the actual minimum
     let actual_p = [22.790_580_66];
     let actual_m = f(&actual_p).with_context(|| "Couldn't evaluate the objective function")?;
